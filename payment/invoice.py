@@ -111,6 +111,27 @@ class InvoiceGenerator:
             logger.error(f"Error getting price: {e}")
             return None
     
+    def get_payment_info(self) -> Dict[str, str]:
+        """
+        Get payment information from config or environment.
+        
+        Returns:
+            Dictionary with payment details
+        """
+        # Try to get from config first
+        payment_info = getattr(config, 'PAYMENT_INFO', None)
+        
+        if payment_info:
+            return payment_info
+        
+        # Fallback to environment variables
+        import os
+        return {
+            'bank': os.getenv('PAYMENT_BANK', 'BCA'),
+            'account': os.getenv('PAYMENT_ACCOUNT', '1234567890'),
+            'name': os.getenv('PAYMENT_NAME', 'Aurea Prime Elite')
+        }
+    
     def format_invoice_text(self, invoice: Dict) -> str:
         """
         Format invoice as text for display.
@@ -122,6 +143,8 @@ class InvoiceGenerator:
             Formatted text
         """
         try:
+            payment_info = invoice.get('payment_info', self.get_payment_info())
+            
             text = (
                 f"📄 <b>INVOICE</b>\n\n"
                 f"<b>Invoice ID:</b> {invoice['invoice_id']}\n"
@@ -134,9 +157,9 @@ class InvoiceGenerator:
                 f"├ Duration: {invoice['duration']}\n"
                 f"└ Amount: {invoice['amount_formatted']}\n\n"
                 f"<b>Payment Information:</b>\n"
-                f"├ Bank: {invoice['payment_info']['bank']}\n"
-                f"├ Account: {invoice['payment_info']['account']}\n"
-                f"└ Name: {invoice['payment_info']['name']}\n\n"
+                f"├ Bank: {payment_info['bank']}\n"
+                f"├ Account: {payment_info['account']}\n"
+                f"└ Name: {payment_info['name']}\n\n"
                 f"<i>Please transfer the exact amount and upload payment proof.</i>"
             )
             

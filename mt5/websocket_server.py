@@ -208,11 +208,15 @@ class WebSocketServer:
             
             logger.info(f"Processing OHLC data for {pair} (MT5: {mt5_id}, Tier: {tier})")
             
+            # Get account balance from data or use default from config
+            account_balance = data.get('account_balance', 
+                                      getattr(config, 'DEFAULT_ACCOUNT_BALANCE', 10000))
+            
             # Generate signal using ML Engine
             signal = self.ml_engine.process_signal(
                 ohlc_data=ohlc_array,
                 tier=tier,
-                account_balance=10000  # Default, should be from EA
+                account_balance=account_balance
             )
             
             # Check if signal is valid

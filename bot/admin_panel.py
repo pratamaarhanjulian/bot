@@ -52,8 +52,12 @@ async def admin_password_handler(update: Update, context: ContextTypes.DEFAULT_T
         user_id = update.effective_user.id
         password = update.message.text.strip()
         
-        # Verify password
-        if password == config.ADMIN_PASSWORD:
+        # Verify password using constant-time comparison
+        import hmac
+        expected = config.ADMIN_PASSWORD.encode('utf-8')
+        provided = password.encode('utf-8')
+        
+        if hmac.compare_digest(expected, provided):
             admin_authenticated[user_id] = True
             context.user_data['awaiting_admin_password'] = False
             

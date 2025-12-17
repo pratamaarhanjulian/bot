@@ -2,7 +2,7 @@
 Token database operations
 """
 
-import random
+import secrets
 import string
 from datetime import datetime
 from typing import Optional, Dict, List
@@ -10,13 +10,13 @@ from .setup_db import get_connection
 
 def generate_token() -> str:
     """
-    Generate a random 8-character token.
+    Generate a cryptographically secure random 8-character token.
     
     Returns:
         str: Random token
     """
     chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(chars, k=8))
+    return ''.join(secrets.choice(chars) for _ in range(8))
 
 def create_token(mt5_id: str, tier: str, expired_at: datetime) -> Optional[str]:
     """
